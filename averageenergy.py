@@ -12,22 +12,21 @@ def extract(l):
     
 
 def get_powers(data,begin,end) : 
-    rows,columns = np.where(np.logical_and(data > begin , data <= end) )
+    rows,columns = np.where(np.logical_and(data > begin , data < end) )
     return data[rows].T[1]
 
 
 
-def retrieve_perf(filename="rep.log", x={}): 
+def retrieve_perf(filename=".perfi.log", res={}): 
     with open(filename ,"r") as f :
-        l=f.readlines() 
-        # print(f.readlines())
-        # return 
-       
-        x["energy_pkg"]=float(l[3].strip().split(" ")[0].replace(",",""))
-        x["energy_core"]=float(l[4].strip().split(" ")[0].replace(",",""))
-        x["energy_gpu"]=float(l[5].strip().split(" ")[0].replace(",",""))
-        x["execution_time"]=float(l[7].strip().split(" ")[0].replace(",",""))
-        return x 
+        # l=f.readlines() 
+        l=[l.strip()for l in f if l.strip()]
+        for measure in l[1:-1]:
+            x=measure.split()
+            res[x[2][6:-1]]=float(x[0].replace(",","")) # remove the world power 
+
+        res["execution-time"]=float(l[-1].split(" ")[0].replace(",",""))
+        return res
 
 
 
@@ -35,15 +34,15 @@ def main():
 
     data = np.stack( [ extract(l) for l in sys.stdin ])
     begin=int(sys.argv[1]) *1000 # transform the data into ms 
-    bfeore_begin=begin-snapbefore *1000 
+    before_begin=begin - snapbefore *1000 
     end=int(sys.argv[2]) *1000
     perf_file=sys.argv[3] if len(sys.argv[3])>3  else  "rep.log"
     results={}
-    results["system_power"] = get_powers(data,bfeore_begin,begin).mean()*frequency
-    results["program_power"] = get_powers(data,begin,end).mean()*frequency
-    results["system_energy"] = results["system_power"]*(end-begin)/1000 #transform data into Joules
-    results["program_energy"] = results["program_power"]*(end-begin)/1000 
-    results["program_net_energy"] = results["program_energy"]-results["system_energy"]
+    results["av-system-power"] = get_powers(data,before_begin,begin).mean()*frequency
+    results["av-program-power"] = get_powers(data,begin,end).mean()*frequency
+    results["system-energy"] = results["av-system-power"]*(end-begin)/1000 #transform data into Joules
+    results["program-energy"] = results["av-program-power"]*(end-begin)/1000 
+    results["program-net-energy"] = results["program-energy"]-results["system-energy"]
     retrieve_perf(perf_file,results)
     return results
     print(results)
@@ -51,4 +50,4 @@ def main():
 
 if __name__=="__main__" : 
     res=main()
-    print(tabulate([res.values()],res.keys(),tablefmt="grid"))
+    print(tabulate([res.values()],res.keys(),tablefmt="fancy_grid"))
