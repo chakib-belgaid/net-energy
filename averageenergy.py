@@ -1,10 +1,12 @@
 import numpy as np
 import pandas as pd
 import sys
-import math
 from tabulate import tabulate
 snapbefore = 10  ## means 10 secs
 frequency = 10
+
+# Data to be written
+dictionary = {"id": "04", "name": "sunil", "depatment": "HR"}
 
 
 def get_headers():
@@ -63,8 +65,7 @@ def main():
     return results
 
 
-if __name__ == "__main__":
-    res = main()
+def print_results(res):
     res["av-system-power"] = res["av-system-power"].mean().to_string(
         dtype=False)
     res["av-program-power"] = res["av-program-power"].mean().to_string(
@@ -78,3 +79,8 @@ if __name__ == "__main__":
                  res.keys(),
                  tablefmt="fancy_grid",
                  colalign=["center"] * len(res)))
+
+
+if __name__ == "__main__":
+    res = main()
+    print_results(res)

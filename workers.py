@@ -40,26 +40,29 @@ def lazy(_func=None, *, affinity=0, charge=100):
         return decorator_lazy(_func)
 
 
-def watcher(affinity=0, charge=100):
-    psutil.Process(os.getpid()).cpu_affinity([affinity])
-    if charge == 100:
-        worker()
-        return
-
+def watcher(affinity=None, charge=100):
     sleep_duration = charge / 10000
     pause_duration = 0.0099 - sleep_duration
     process = multiprocessing.Process(target=worker)
+    if affinity is not None:
+        if type(affinity) != list:
+            myaffinity = [affinity]
+        psutil.Process(process.pid).cpu_affinity(myaffinity)
+        psutil.Process(os.getpid()).cpu_affinity(myaffinity)
+    if charge == 100:
+        worker()
+        return
+    if charge == 0:
+        exit()
     process.start()
-    # print(process.pid)
-    psutil.Process(process.pid).cpu_affinity([affinity])
     while process.is_alive():
         os.kill(process.pid, signal.SIGSTOP)
         time.sleep(pause_duration)
         os.kill(process.pid, signal.SIGCONT)
         time.sleep(sleep_duration)
+    return
 
 
-@lazy(affinity=[2, 3], charge=32)
 def worker():
     i = 1
     j = 1
@@ -69,7 +72,7 @@ def worker():
     return i + j
 
 
-def main():
+def pinned_workers():
 
     charge = int(sys.argv[1])
     cpu_count = [int(i) for i in sys.argv[2:]]
@@ -79,9 +82,15 @@ def main():
         x.start()
 
 
-def main2():
-    worker()
+def random_workers():
+
+    charge = int(sys.argv[1])
+    cpu_count = int(sys.argv[2])
+    # loop , sleepduration = levels[int(argv[2])]
+    for i in range(cpu_count):
+        x = multiprocessing.Process(target=watcher, args=(None, charge))
+        x.start()
 
 
 if __name__ == "__main__":
-    main2()
+    random_workers()
