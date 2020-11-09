@@ -35,3 +35,19 @@ it accepts two parameters
 - the number of threads to be used 
 
     python workers.py workload threads_counts 
+
+## Demonstration 
+the reasult of the script `meansure.sh` would be like the following image 
+[!net-energy demo](https://github.com/chakib-belgaid/net-energy/blob/master/net-energy.png)
+
+- **av-system-power** (Watts): the average power consumption of the machine before we run our program
+- **av-program-power** (Watts): the average power consumption of the machine during the execution of our program 
+- **system-energy** (Joules): the estimated energy of the machine wihtout our program (we calculate it with v-system-power * execution-time )
+- **program-energy** (Joules):  the energy consumption of the machine including our program 
+- **program-net-energy** (Joules): the net energy that our program consumed during his execution 
+- **energy-cores** | **energy-gpu** | **energy-pkg** (Joules): the raw measures gathered from perf -this will help to estimate the error of the *program-energy* since it is just an estimation 
+- **execution-time** (seconds): execution time of our program
+
+
+
+
