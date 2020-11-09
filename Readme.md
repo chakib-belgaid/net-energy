@@ -38,7 +38,7 @@ it accepts two parameters
 
 ## Demonstration 
 the reasult of the script `meansure.sh` would be like the following image 
-[!net-energy demo](https://github.com/chakib-belgaid/net-energy/blob/master/net-energy.png)
+![net-energydemo](https://github.com/chakib-belgaid/net-energy/blob/master/net-energy.png)
 
 - **av-system-power** (Watts): the average power consumption of the machine before we run our program
 - **av-program-power** (Watts): the average power consumption of the machine during the execution of our program 
